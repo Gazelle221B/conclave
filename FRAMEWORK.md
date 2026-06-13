@@ -4,19 +4,60 @@
 
 ---
 
+## 0.0 何であって、何でないか (positioning)
+
+> **Conclave = Git-native Agent Governance Layer for AI Software Development.**
+> Conclave keeps AI coding agents aligned, auditable, and handoff-safe across long-running software projects.
+
+- **Conclave はワークフローではない。** ワークフローは「このプロジェクトで、何を、どの順で作るか」を定める手順。Conclave はそれを規定しない。
+- **Conclave はガバナンス基盤 (governance substrate) である。** プロジェクト固有の AI ワークフロー(人間が書く / AI が生成する)が、その**上で**走る土台を敷く。役割 (P1) ・憲法 (P2) ・記録 (P3) ・運用書の骨格 (P4) ・工学/実行の規律 (P5/P6) が substrate。
+- **役割**: 上で走る AI 群を **整合 (aligned) / 監査可能 (auditable) / 引き継ぎ安全 (handoff-safe)** に保つこと。
+- 人間チームが GitHub 上で使う統治原始機構 (CODEOWNERS / ADR / PMO / CI required checks / branch protection / runbook / incident triage) の **AI 版**を、同じく Git ネイティブ(状態はファイル・ブランチ・PR・ADR に住む)に提供する。
+
+> この区別が実装上重要なのは: 「Conclave に従えば自分のプロジェクトのワークフローが決まる」のではなく、「自分のワークフローを Conclave の substrate に**載せる**と、それが整合・監査可能・引き継ぎ安全になる」という関係だから。substrate は手順を奪わず、規律を与える。
+
+---
+
 ## 0. 中核命題
 
 > **個々の AI の賢さではなく、組織設計と運用規律でプロジェクトを完成させる。**
 
 前提として、各役割には「人間のトップタレントを超えうる」性能の AI を配置できる時代になった。その前提が真なら、プロジェクトが炎上する原因は**能力不足ではなく、要件・スコープ・受け渡し・記憶の設計欠陥**である。Conclave は能力ではなくこの構造を直す。
 
-3 つの土台原則:
+4 つの土台原則:
 
 1. **視点の独立性 (Separation of Viewpoints)** — 計画者・実装者・レビュアーは必ず別エージェント。実装した本人にレビューさせない (PR 作者 ≠ レビュアー)。同一コンテキストでの自己承認は盲点を残す。
+   - ⚠️ **v0.2 の精緻化**: この独立性は「**裁定する (judging) ロール**」(REVIEWER / QA_MEMORY) にのみ無条件で適用する。「**動く (acting) ロール**」(ARCHITECT / IMPLEMENTER) は逆に、行動の前に完全な上流コンテキスト (SSOT) を受け取らねばならない——さもなくば矛盾する暗黙の決定を生む(Cognition の知見、→ [The Council](roles/ROLE_TOPOLOGY.md))。独立性のうち「自己承認を防ぐ部分」だけを残し「矛盾する決定を生む部分」を塞ぐ。
 2. **希少資源の集中投下 (Scarce-Resource Concentration)** — 最も高コストな Dense モデルは「上流設計」と「難所エスカレーション」の 2 点のみに投入。日常実装・大量生成は低コストモデルに委任し、オーケストレーターのトークンは計画・統合・判断・検証に温存する。
 3. **問題定義は人間が握る (Human Owns the Problem)** — 人間は「作ること」ではなく「何を作るべきかを正しく定義し続けること」に純化される。
+4. **文脈は有限資源 (Context is Finite)** — どのエージェントの生きた文脈窓も、枯渇する「注意の予算」を持つ(トークンが増えるほど recall と長距離推論が劣化する「context rot」)。これはモデルコスト (原則 2) とは別個の希少資源である。重い読み込みは委任し、軽量参照を保持し、観測されたドリフトで圧縮し、真実はファイルに置く。→ [Context Hygiene](principles/CONTEXT_HYGIENE.md)。**「context engineering は AI エージェントを作る技術者の実質 #1 の仕事」**(Cognition)。
 
 ---
+
+## 0.1 Conclave はマルチエージェントの「反パターン」ではない
+
+Conclave は自らを「マルチエージェント」と呼ぶため、Cognition の有名な批判「Don't Build Multi-Agents」(並列協調するサブエージェント群は脆い) と対立して読まれうる。この対立は**見かけより狭い**ので、明示しておく。
+
+Cognition が脆いと言うのは「**並列ファンアウトした acting サブエージェント群を、文脈を十分共有せずにマージする**」構成である。Conclave はそれではない:
+
+1. **逐次 multi-ROLE であって並列ファンアウトではない** — ARCHITECT → IMPLEMENTER → REVIEWER → QA_MEMORY → HUMAN を**一列**で回す。Cognition が推す「単一スレッド線形」の形をオーケストレーション層で踏襲している。
+2. **共有コンテキストを永続化している** — DESIGN / PROJECT_STATE が「full trace を共有する」のドキュメント版。acting ロールにはこの SSOT を渡す(原則 1 の v0.2 精緻化)。
+3. **acting と judging を区別する** — 動くロールには完全な上流コンテキストを渡し、裁定するロールだけを意図的に独立させる。
+
+→ Conclave が危険になる境界: **複数の acting エージェントを、共有 SSOT 抜きで同一ファイルに並列に走らせる**とき。これは憲法 (P2) と RUNBOOK で人間承認必須としてゲートする。
+
+## 0.2 独立研究の収束 (なぜこの設計を信じてよいか)
+
+v0.2 の研究で読んだ 7 資料のうち**5 つが、独立に同じ 4 点へ収束**した。この収束自体が Conclave 設計の最強の実証的裏付けである:
+
+| 収束した主張 | 裏付けた資料 | 対応する柱 |
+|---|---|---|
+| **persistence > internal memory / context engineering** | Anthropic, Cognition, BMAD, MAST | P3, [Context Hygiene](principles/CONTEXT_HYGIENE.md) |
+| **上流(計画)と下流(実装)の役割分割** | BMAD, spec-kit, MAST | P1 |
+| **検証が最高レバレッジの層**(高レベル目的検証で +15.6%) | MAST, LLM-as-Judge survey | P6, [Failure Taxonomy](principles/FAILURE_TAXONOMY.md) |
+| **失敗は能力でなく組織設計の欠陥** | MAST(1,600+ トレース), Cognition | 中核命題 §0 |
+
+MAST (arXiv:2503.13657) は 1,600+ の実行トレースで「ステップ反復 15.7% + 履歴喪失 2.8% + 会話リセット 2.2% ≒ **21% が揮発性状態の失敗**」を実測——P3 の存在理由が数字で裏付けられた。
 
 ## Pillar 1 — The Council (合議体): 誰が動くか
 
@@ -50,6 +91,8 @@
 4. **スコープ境界** — 例: フェーズ越境の禁止 (現フェーズの DoD 充足まで次フェーズ機能を入れない)、コスト上限超過は人間判断
 5. **コンテンツ・法務・倫理** — プロジェクト固有の禁止表現・転載・権利
 6. **技術スタック** — 言語/構成の決定 (ADR) を勝手に覆さない
+
+> v0.2 で研究知見から **C-7 (終了 NG)** と **C-8 (過剰修正 NG)** を追加し、現在は計 **8 分類 (C-1〜C-8)**。詳細・自プロジェクト版の起草枠は [CONSTITUTION](governance/CONSTITUTION.md)。
 
 **設計の肝**: 憲法は「やれること」ではなく「やってはいけないこと」を列挙する。AI は善意で機能を足し、コードを「改善」し、スコープを広げる。これを止めるのは能力ではなくルールである。**抵触しそうなら実装を止めて人間へ**(Pillar 4 の決定木が「人間ゲート」を指したら追加作業を発明しない)。
 
@@ -93,7 +136,7 @@
 2. **状態判定 → 次アクションの決定木** — `PROJECT_STATE` と git/PR 状態を突き合わせ、上から最初に当てはまる行を実行する。現在地から次の一手を**機械的に**引けるようにする。決定木が「人間ゲート」を指したら追加作業を発明せず停止する。
 3. **外部 AI ルーティング表** — 「どの用途を誰に投げ、どう非対話呼び出しし、トークン上限到達時にどう fallback するか」を表で固定。**委任結果は必ず自分で検証してから採用**(出典 URL の実在確認、コードなら品質ゲート)。役割分離 (実装者≠レビュアー≠QA) を運用レベルで強制する。
 
-> **WORKFLOW (組織契約) と RUNBOOK (操作手順) は補完関係**: 前者は「誰が何の役割か」、後者は「どう自走するか」を定義する。両者を分けることで、組織設計を変えずに運用手順だけ改訂できる。
+> **ROLE_TOPOLOGY (組織契約) と RUNBOOK (操作手順) は補完関係**: 前者は「誰が何の役割か」、後者は「どう自走するか」を定義する。両者を分けることで、組織設計を変えずに運用手順だけ改訂できる。
 
 ---
 
@@ -128,6 +171,22 @@ Andrej Karpathy の LLM コーディング 4 原則を、**検証可能な手続
 **人間が監視すべき唯一の点**: 「同じ場所で 2 回以上詰まる」現象。発火したらコードではなく要件を見直す。これは能力の限界ではなく**問題定義の欠陥**の、最も価値の高いアラートである。
 
 ---
+
+## Pillar 5+ / 6+ — v0.2 で追加した原則 (研究駆動のハードニング)
+
+既存 6 柱を変えず、検証済み研究知見を 3 つの原則ファイルとして追加した(`Pn+` = Pillar n を硬化させる補助原則。柱の数は 6 のまま):
+
+- **[Context Hygiene](principles/CONTEXT_HYGIENE.md)** (P5+) — 文脈を有限資源として能動管理する。flush-then-compact / JIT loading / 蒸留戻り / 段階的コールドスタート / リセット・カデンス / 右の高度プロンプト。[Anthropic, Cognition, BMAD]
+- **[Failure Taxonomy](principles/FAILURE_TAXONOMY.md)** (P6+) — MAST の 14 失敗モード(実測頻度)× Conclave 防御のクロスウォーク。自己監査チェックリスト。盲点(終了条件・推論行動不一致・検証者信頼性)を明示。[MAST]
+- **[Judge Reliability](principles/JUDGE_RELIABILITY.md)** (P6+) — 検証者そのものを信頼しない。モデル系統独立 / バイアス対策 / クレーム分解検証 / 過剰修正ガード / split-verdict。[LLM-as-Judge survey, Hallucination Cascade]
+
+## 正直な限界とモデル改善の留保
+
+知的誠実さのため、Conclave 自身が万能でないことを明記する:
+
+- **ドキュメント・ハンドオフの限界**: P3 の「ドキュメントを工程間チャネルとする」は構造化通信プロトコル解であり、MAST は「通信プロトコル解はエージェント間不整合 (FC2) にしばしば不十分」と警告する。Conclave はこれを「視点の独立性 + 二段検証 + verify-before-adopt」で補うが、プロトコル単独で解けるとは主張しない(→ [Failure Taxonomy](principles/FAILURE_TAXONOMY.md))。
+- **検証者は完璧でない**: REVIEWER/QA を品質の砦にするが、MAST では「誤った検証」が 9.1%(FC3 最頻)。Conclave は [Judge Reliability](principles/JUDGE_RELIABILITY.md) で校正するが、ゼロにはできない。
+- **モデル改善の留保**: Conclave は意図的に prescriptive な構造だが、Anthropic は「能力の高いモデルほど prescriptive な足場を要しない」「最も単純で効くことをせよ」と説く。プロンプト・テンプレートの規定は**文書化された失敗モードを防ぐ最小限**に留め、モデル世代交代ごとに**下方へ**再評価する([ROLE_TOPOLOGY](roles/ROLE_TOPOLOGY.md) の再評価条項を「割り当て」だけでなく「規定の量」にも拡張)。
 
 ## 柱の相互関係 (1 枚の地図)
 

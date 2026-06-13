@@ -143,6 +143,26 @@ return Result(template_generate(topic), method="template")  # 常に契約適合
 
 ---
 
+## INV-7. トークン効率・非重複のツール/委任インターフェース
+
+**ツールと委任タスクのインターフェースは、トークン効率が良く、機能が重複せず、用途が一義であること。**
+
+- 肥大した重複ツール群はエージェントを混乱させる。各ツールは自己完結・エラー耐性・トークン効率の良い出力・曖昧さのない用途を持つ。
+- **曖昧さ判定テスト**: 人間のエンジニアが「この状況でどのツール/サブエージェントを使うか」を断言できないなら、AI にもできない。
+- 重い作業の戻りは**蒸留要約**(生ダンプではなく)。これは [Context Hygiene](CONTEXT_HYGIENE.md) CH-4 のコード版であり、オーケストレーターの注意予算を守る。
+
+```python
+# 悪い例: 生の巨大 JSON をそのまま文脈へ返す (注意予算を食い潰す)
+return {"raw_response": huge_api_payload, "all_items": [...5000 items...]}
+
+# 良い例: 蒸留した要約 + 参照を返す
+return {"summary": "5000 件中 12 件が条件一致", "detail_ref": "data/run_42.json", "top": top_12}
+```
+
+> 出典: Anthropic「Effective Context Engineering」。ENGINEERING_INVARIANTS は LLM 呼び出しの堅牢性 (INV-3/4/5) を扱うが、**ツール面・戻り値のサイズ/明瞭性**の不変条件が欠けていた。RUNBOOK §3 の蒸留戻り契約をコード層で支える。
+
+---
+
 ## 適用チェックリスト
 
 新しい LLM 連携モジュールを書くとき:
@@ -153,3 +173,4 @@ return Result(template_generate(topic), method="template")  # 常に契約適合
 - [ ] JSON 判定と散文生成を分けたか / 決定性の要る所をコードにしたか (INV-4)
 - [ ] fallback の最後の砦があるか (INV-5)
 - [ ] 冪等性・一意制約・一方向依存を守ったか (INV-6)
+- [ ] ツール/戻り値はトークン効率・非重複・一義か (INV-7)

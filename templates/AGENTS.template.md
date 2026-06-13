@@ -30,6 +30,8 @@
 - **C-4 スコープ境界**: 現フェーズ DoD 充足まで次フェーズ機能を入れない / コスト上限超過は人間判断 / 「ついで」禁止
 - **C-5 コンテンツ・法務**: `<プロジェクト固有の禁止>`
 - **C-6 スタック**: 確定済み ADR を勝手に覆さない
+- **C-7 終了**: 全委任タスクに明示的終了条件 + 最大反復上限。出口なしループ禁止 / 早すぎる完了宣言禁止
+- **C-8 過剰修正**: 確認できないだけで先行エージェントの事実主張を削除・書換しない (unverifiable ≠ false)。フラグして escalate
 
 ## 4. 主要コマンド
 
@@ -59,7 +61,7 @@
 
 ## 7. マルチエージェント運用 (最重要原則)
 
-→ 組織契約: `docs/WORKFLOW.md` / 役割: ROLE_TOPOLOGY。**実装者・レビュアー・QA は必ず別エージェント** (PR 作者 ≠ レビュアー)。
+→ 組織契約・役割: `docs/ROLE_TOPOLOGY.md`。**実装者・レビュアー・QA は必ず別エージェント** (PR 作者 ≠ レビュアー)。
 
 | 役割スロット | 基盤+モデル | 責務 |
 |---|---|---|
@@ -92,7 +94,9 @@
 | 運用書 | docs/ORCHESTRATION_RUNBOOK.md | ★ 自律オーケストレーション手順。交代した AI はまずここ |
 | 引き継ぎ | docs/HANDOFF.md | 時点スナップショット |
 | 状態 | docs/PROJECT_STATE.md | ★ 真の記憶 |
-| ワークフロー | docs/WORKFLOW.md | エージェント間契約 |
+| 組織契約 | docs/ROLE_TOPOLOGY.md | 役割スロット・委任の鉄則 (誰が何の役割か) |
+| 憲法 | docs/CONSTITUTION.md / docs/ESCALATION.md | 絶対 NG (C-1〜C-8) + 失敗分類 A-E |
+| 原則 | docs/EXECUTION_DISCIPLINE.md ほか principles/ | 実行規律 / 工学不変条件 / 文脈衛生 / 失敗分類 / 判定信頼性 |
 | ADR | docs/adr/INDEX.md | 設計判断記録 |
 | 証跡 | docs/TEST_LOG.md / REVIEW_REPORT.md / QA_REPORT.md | 実装/レビュー/QA |
 

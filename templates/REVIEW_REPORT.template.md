@@ -2,9 +2,17 @@
 
 > 作成者: `REVIEWER` (独立レビュアー)。**実装には関与していない。** 実装の修正は行わない (差し戻し指示のみ)。
 
+## 判定者メタ (auditability)
+
+> 判定はバイアス・幻覚に汚染されうる「測定値」。後から判定者を meta 評価できるよう記録する(→ [JUDGE_RELIABILITY](../principles/JUDGE_RELIABILITY.md))。
+
+- **判定モデル/系統**: `<model/family>`(**評価対象を生成したモデルと別系統であること** — self-enhancement bias 対策)
+- **採点した基準 (criteria)**: `<DESIGN 由来の各次元>`
+- **推論を先に / 説明付き**: はい(裸のスコアでなく基準ごとに根拠を述べる)
+
 ## 総合判定: PASS / FAIL
 
-> **Critical/High がゼロのときのみ PASS。**
+> **Critical/High がゼロのときのみ PASS。** 証跡なき PASS を出さない。
 
 ## 確認した証跡 (必須)
 
