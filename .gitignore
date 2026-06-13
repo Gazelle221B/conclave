@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# ローカルのエージェント/オーケストレーション状態 (公開しない)
+.omc/
+.omx/
+.sisyphus/
+.claude/
+
+# エディタ
+.vscode/
+.idea/
