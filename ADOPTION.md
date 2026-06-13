@@ -51,7 +51,7 @@ cp conclave/governance/*.md conclave/roles/*.md conclave/principles/*.md "$PROJ/
 | ファイル | 埋めるもの | 必須度 |
 |---|---|---|
 | `AGENTS.md` §1 | プロジェクト概要・言語・実行コマンド | ★必須 |
-| `AGENTS.md` §3 | **絶対 NG (憲法)** — 6 分類を自プロジェクトに具体化 | ★必須 |
+| `AGENTS.md` §3 | **絶対 NG (憲法)** — 8 分類 (C-1〜C-8) を自プロジェクトに具体化 | ★必須 |
 | `AGENTS.md` §4 | 品質ゲートコマンド (test/lint/type) | ★必須 |
 | `AGENTS.md` §7 | 役割スロットへのモデル割り当て | ★必須 |
 | `ORCHESTRATION_RUNBOOK.md` §2 | 状態判定決定木 (フェーズ固有の行) | ★必須 |
@@ -59,7 +59,7 @@ cp conclave/governance/*.md conclave/roles/*.md conclave/principles/*.md "$PROJ/
 | `ROLE_TOPOLOGY.md` §2 | モデルバインディング表 | ★必須 |
 | `ORCHESTRATION_RUNBOOK.md` §6 | 定常運用ループ | 本番運用があれば |
 
-> **憲法 (§3) の起草が最重要。** ここで「やってはいけないこと」を具体に書くほど、AI の暴走・スコープ膨張が止まる。テンプレートの 6 分類 ([CONSTITUTION](governance/CONSTITUTION.md)) を 1 つずつ自問して埋める。
+> **憲法 (§3) の起草が最重要。** ここで「やってはいけないこと」を具体に書くほど、AI の暴走・スコープ膨張が止まる。テンプレートの 8 分類 (C-1〜C-8、[CONSTITUTION](governance/CONSTITUTION.md)) を 1 つずつ自問して埋める。
 
 ---
 
@@ -98,6 +98,34 @@ cp conclave/governance/*.md conclave/roles/*.md conclave/principles/*.md "$PROJ/
 3. **+ DoD** (品質ゲートのフレッシュ実行) — 「動いた気がする」完了の撲滅。
 4. **+ 役割分離** (実装≠レビュー≠QA) — 自己承認の盲点を消す。複数 AI が要る。
 5. **+ 運用書** (決定木) — 人間の逐次指示なしの自走。フル Conclave。
+
+---
+
+## プロンプトの「右の高度」(prompt altitude)
+
+`AGENTS.md` ・役割プロンプト (`prompts/*`) ・委任プロンプトを書くときの原則(→ [CONTEXT_HYGIENE](principles/CONTEXT_HYGIENE.md) CH-7):
+
+- **低すぎる**(脆いハードコード if-else)でも **高すぎる**(曖昧な一般論)でもなく、**強いヒューリスティクスの最小集合**を明確に区切ったセクションで。
+- 最小から始め、観測された失敗モードに対して反復する。
+- `AGENTS.md` の **≤300 行ルールは「注意予算の節約」**(可読性だけでない)。
+- **モデル改善の留保**: 賢いモデルほど prescriptive な足場を要さない。規定は「文書化された失敗モードを防ぐ最小限」に留め、モデル世代交代で下方へ再評価する。
+
+---
+
+## 意図的な相違 (spec-kit / BMAD を知っている人へ)
+
+Conclave は spec-kit と BMAD から機構を借りたが、**統治の哲学が違う**点を明示する。借りた機構は採用し、衝突する選択は**意図的に採らない**:
+
+| 観点 | spec-kit / BMAD | Conclave |
+|---|---|---|
+| 品質ゲート | BMAD は **助言的・非ブロッキング**(チームが基準を選ぶ) | **ブロッキング**。FAIL は通過不可、merge は人間専権 (P2) |
+| レビュー独立性 | BMAD の QA は**コードを直接リファクタ**、BMad-Master は全役割兼任 | レビュアーは**コードを編集しない**。実装≠レビュー≠QA を分離 (P1) |
+| consistency 分析 | spec-kit `/analyze` は**同一エージェントの自己分析** | **独立スロット**へルーティング(自己承認しない、P1) |
+| コードの位置づけ | spec-kit は「コード = 使い捨ての再生成物」 | merged コードは **C-1/C-2 で守る耐久資産**。spec-as-upstream-truth のみ採用 |
+| 不変条件 | どちらも憲法/絶対NG・エスカレーション分類を持たない | **憲法 (C-1〜C-8) + 分類 A-E** が全行動に優先 (P2) |
+| 明確化 | spec-kit `/clarify` は対話的 | **一括 (one-shot) ゲート**で P4 の自律性を保つ |
+
+**借りた機構**: spec-kit の `[NEEDS CLARIFICATION]` マーカー・clarify/analyze ゲート・`[P]` 並列マーカー・憲法ゲート checklist。BMAD の二相 (計画/実装)・document sharding・story バンドル(ポインタ方式)・構造化ゲート状態 (PASS/CONCERNS/FAIL/WAIVED)・context-reset cadence・per-slot lean manifest。
 
 ---
 
