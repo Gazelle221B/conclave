@@ -8,9 +8,23 @@ const test = require("node:test");
 
 const cli = require("../bin/conclave.js");
 
+const tempProjects = [];
+
 function makeTempProject() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), "conclave-cli-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "conclave-cli-"));
+  tempProjects.push(dir);
+  return dir;
 }
+
+// Tie temp-dir lifetime to the test run: remove every project created via
+// makeTempProject so repeated local or CI runs don't accumulate directories
+// under the OS temp folder. rmSync(recursive) removes symlinks themselves
+// (it does not follow them), so external-target tests stay safe.
+test.after(() => {
+  for (const dir of tempProjects) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
 
 function walkMarkdownFiles(root) {
   const files = [];
