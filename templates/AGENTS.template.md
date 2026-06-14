@@ -22,7 +22,7 @@
 
 ## 3. 絶対 NG (禁止事項) — 最優先
 
-> 全文・分類は [CONSTITUTION](docs/CONSTITUTION.md) 相当。**いずれか抵触しそうなら実装を止めてエスカレーション** ([ESCALATION](docs/ESCALATION.md))。
+> 全文・分類は [CONSTITUTION](docs/conclave/governance/CONSTITUTION.md) 相当。**いずれか抵触しそうなら実装を止めてエスカレーション** ([ESCALATION](docs/conclave/governance/ESCALATION.md))。
 
 - **C-1 リポジトリ**: 保護ブランチ直 push 禁止 / merge は人間専権 / hook スキップ禁止 / `.env` commit 禁止
 - **C-2 データ**: `<一意制約・キー生成順・エンコーディング単位の不変条件>`
@@ -61,7 +61,7 @@
 
 ## 7. マルチエージェント運用 (最重要原則)
 
-→ 組織契約・役割: `docs/ROLE_TOPOLOGY.md`。**実装者・レビュアー・QA は必ず別エージェント** (PR 作者 ≠ レビュアー)。
+→ 組織契約・役割: `docs/conclave/roles/ROLE_TOPOLOGY.md`。**実装者・レビュアー・QA は必ず別エージェント** (PR 作者 ≠ レビュアー)。
 
 | 役割スロット | 基盤+モデル | 責務 |
 |---|---|---|
@@ -72,7 +72,7 @@
 | `QA_MEMORY` | `<...>` | 最終 QA・整合性 |
 
 **永続化 > 内部記憶**: 状態は必ず `docs/PROJECT_STATE.md` に書く。
-**エスカレーション分類** A-E: → [ESCALATION](docs/ESCALATION.md)。
+**エスカレーション分類** A-E: → [ESCALATION](docs/conclave/governance/ESCALATION.md)。
 
 ## 8. コミット規約とブランチ運用
 
@@ -83,7 +83,7 @@
 
 ## 9. 品質ゲート (Definition of Done)
 
-→ 全文: [EXECUTION_DISCIPLINE](docs/EXECUTION_DISCIPLINE.md)。`<カバレッジ目標、本番完走条件、N 日連続稼働などプロジェクト固有の DoD>`
+→ 全文: [EXECUTION_DISCIPLINE](docs/conclave/principles/EXECUTION_DISCIPLINE.md)。`<カバレッジ目標、本番完走条件、N 日連続稼働などプロジェクト固有の DoD>`
 
 ## 10. ドキュメント地図
 
@@ -91,18 +91,18 @@
 |---|---|---|
 | 要件 | docs/REQUIREMENTS.md | 問題定義の起点 |
 | 設計 | docs/DESIGN.md | **単一の真実の源** |
-| 運用書 | docs/ORCHESTRATION_RUNBOOK.md | ★ 自律オーケストレーション手順。交代した AI はまずここ |
+| 運用書 | docs/conclave/runbook/ORCHESTRATION_RUNBOOK.md | ★ 自律オーケストレーション手順。交代した AI はまずここ |
 | 引き継ぎ | docs/HANDOFF.md | 時点スナップショット |
 | 状態 | docs/PROJECT_STATE.md | ★ 真の記憶 |
-| 組織契約 | docs/ROLE_TOPOLOGY.md | 役割スロット・委任の鉄則 (誰が何の役割か) |
-| 憲法 | docs/CONSTITUTION.md / docs/ESCALATION.md | 絶対 NG (C-1〜C-8) + 失敗分類 A-E |
-| 原則 | docs/EXECUTION_DISCIPLINE.md ほか principles/ | 実行規律 / 工学不変条件 / 文脈衛生 / 失敗分類 / 判定信頼性 |
+| 組織契約 | docs/conclave/roles/ROLE_TOPOLOGY.md | 役割スロット・委任の鉄則 (誰が何の役割か) |
+| 憲法 | docs/conclave/governance/CONSTITUTION.md / docs/conclave/governance/ESCALATION.md | 絶対 NG (C-1〜C-8) + 失敗分類 A-E |
+| 原則 | docs/conclave/principles/EXECUTION_DISCIPLINE.md ほか | 実行規律 / 工学不変条件 / 文脈衛生 / 失敗分類 / 判定信頼性 |
 | ADR | docs/adr/INDEX.md | 設計判断記録 |
 | 証跡 | docs/TEST_LOG.md / REVIEW_REPORT.md / QA_REPORT.md | 実装/レビュー/QA |
 
 ## 11. AI エージェント向け運用ルール
 
-1. **作業開始時に必ず読む**: 本書 → `PROJECT_STATE.md` → `ORCHESTRATION_RUNBOOK.md` → `DESIGN.md` → 該当 Ticket。
+1. **作業開始時に必ず読む**: 本書 → `docs/PROJECT_STATE.md` → `docs/conclave/runbook/ORCHESTRATION_RUNBOOK.md` → `docs/DESIGN.md` → 該当 Ticket。
 2. **判断ログを残す**: 設計判断は ADR へ。
 3. **状態を必ず書く**: 進捗・人間判断待ちは `PROJECT_STATE.md` へ。
 4. **疑ったら止める**: 絶対 NG (§3) 抵触で停止しエスカレーション。
@@ -111,7 +111,7 @@
 
 ## 12. コーディング原則 (Karpathy 4 原則)
 
-→ 手続き化の全文: [EXECUTION_DISCIPLINE](docs/EXECUTION_DISCIPLINE.md)。**§3 絶対NG と矛盾する場合は §3 を優先**。
+→ 手続き化の全文: [EXECUTION_DISCIPLINE](docs/conclave/principles/EXECUTION_DISCIPLINE.md)。**§3 絶対NG と矛盾する場合は §3 を優先**。
 Think Before Coding / Simplicity First / Surgical Changes / Goal-Driven Execution。
 
 ---

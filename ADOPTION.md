@@ -21,6 +21,29 @@
 
 ## ステップ 1 — ファイルを配置する
 
+推奨は CLI 導入:
+
+```bash
+PROJ=<your-project-path>
+
+# この Conclave リポジトリから tarball を作る場合
+npm pack
+npm install -g ./conclave-governance-kit-0.3.0.tgz
+
+# 対象プロジェクトへ統治ファイルを配置
+conclave init "$PROJ"
+conclave check "$PROJ"
+```
+
+公開済みパッケージとして使う場合:
+
+```bash
+npx conclave-governance-kit init <your-project-path>
+npx conclave-governance-kit check <your-project-path>
+```
+
+CLI が使えない環境では手動コピーする:
+
 ```bash
 PROJ=<your-project-path>
 
@@ -29,17 +52,28 @@ cp conclave/templates/AGENTS.template.md "$PROJ/AGENTS.md"
 cd "$PROJ" && ln -s AGENTS.md CLAUDE.md     # Claude Code 用エイリアス
 
 # 運用ドキュメント
-mkdir -p "$PROJ/docs/adr"
-cp conclave/runbook/ORCHESTRATION_RUNBOOK.template.md "$PROJ/docs/ORCHESTRATION_RUNBOOK.md"
+mkdir -p "$PROJ/docs/adr" "$PROJ/docs/conclave/runbook"
+cp conclave/runbook/ORCHESTRATION_RUNBOOK.template.md "$PROJ/docs/conclave/runbook/ORCHESTRATION_RUNBOOK.template.md"
+cp conclave/runbook/ORCHESTRATION_RUNBOOK.template.md "$PROJ/docs/conclave/runbook/ORCHESTRATION_RUNBOOK.md"
+cp conclave/templates/DESIGN.template.md "$PROJ/docs/DESIGN.md"
+cp conclave/templates/IMPLEMENTATION_PLAN.template.md "$PROJ/docs/IMPLEMENTATION_PLAN.md"
 cp conclave/templates/PROJECT_STATE.template.md "$PROJ/docs/PROJECT_STATE.md"
 cp conclave/templates/HANDOFF.template.md "$PROJ/docs/HANDOFF.md"
 cp conclave/templates/REQUIREMENTS.template.md "$PROJ/docs/REQUIREMENTS.md"
+cp conclave/templates/REVIEW_REPORT.template.md "$PROJ/docs/REVIEW_REPORT.md"
+cp conclave/templates/QA_REPORT.template.md "$PROJ/docs/QA_REPORT.md"
+perl -0pi -e 's#\.\./(governance|principles|roles|runbook|prompts)/#conclave/$1/#g; s#\b(REQUIREMENTS|DESIGN|IMPLEMENTATION_PLAN|PROJECT_STATE|HANDOFF|REVIEW_REPORT|QA_REPORT)\.template\.md#$1.md#g' "$PROJ"/docs/*.md
 
 # 役割プロンプト
-cp -r conclave/prompts "$PROJ/prompts"
+mkdir -p "$PROJ/prompts" "$PROJ/docs/conclave/prompts"
+cp conclave/prompts/architect.md conclave/prompts/implement.md conclave/prompts/review.md conclave/prompts/qa.md "$PROJ/prompts/"
+cp conclave/prompts/architect.md conclave/prompts/implement.md conclave/prompts/review.md conclave/prompts/qa.md "$PROJ/docs/conclave/prompts/"
 
-# 統治ドキュメント (憲法・エスカレーション・役割) はリンクするか docs/ にコピー
-cp conclave/governance/*.md conclave/roles/*.md conclave/principles/*.md "$PROJ/docs/" 2>/dev/null || true
+# 統治ドキュメント (source layout を docs/conclave/ に保持)
+mkdir -p "$PROJ/docs/conclave/governance" "$PROJ/docs/conclave/roles" "$PROJ/docs/conclave/principles"
+cp conclave/governance/*.md "$PROJ/docs/conclave/governance/"
+cp conclave/roles/*.md "$PROJ/docs/conclave/roles/"
+cp conclave/principles/*.md "$PROJ/docs/conclave/principles/"
 ```
 
 ---
@@ -54,10 +88,10 @@ cp conclave/governance/*.md conclave/roles/*.md conclave/principles/*.md "$PROJ/
 | `AGENTS.md` §3 | **絶対 NG (憲法)** — 8 分類 (C-1〜C-8) を自プロジェクトに具体化 | ★必須 |
 | `AGENTS.md` §4 | 品質ゲートコマンド (test/lint/type) | ★必須 |
 | `AGENTS.md` §7 | 役割スロットへのモデル割り当て | ★必須 |
-| `ORCHESTRATION_RUNBOOK.md` §2 | 状態判定決定木 (フェーズ固有の行) | ★必須 |
-| `ORCHESTRATION_RUNBOOK.md` §3 | 外部 AI ルーティング (CLI・モデル・fallback) | 委任するなら必須 |
-| `ROLE_TOPOLOGY.md` §2 | モデルバインディング表 | ★必須 |
-| `ORCHESTRATION_RUNBOOK.md` §6 | 定常運用ループ | 本番運用があれば |
+| `docs/conclave/runbook/ORCHESTRATION_RUNBOOK.md` §2 | 状態判定決定木 (フェーズ固有の行) | ★必須 |
+| `docs/conclave/runbook/ORCHESTRATION_RUNBOOK.md` §3 | 外部 AI ルーティング (CLI・モデル・fallback) | 委任するなら必須 |
+| `docs/conclave/roles/ROLE_TOPOLOGY.md` §2 | モデルバインディング表 | ★必須 |
+| `docs/conclave/runbook/ORCHESTRATION_RUNBOOK.md` §6 | 定常運用ループ | 本番運用があれば |
 
 > **憲法 (§3) の起草が最重要。** ここで「やってはいけないこと」を具体に書くほど、AI の暴走・スコープ膨張が止まる。テンプレートの 8 分類 (C-1〜C-8、[CONSTITUTION](governance/CONSTITUTION.md)) を 1 つずつ自問して埋める。
 
@@ -79,7 +113,7 @@ cp conclave/governance/*.md conclave/roles/*.md conclave/principles/*.md "$PROJ/
 
 ## ステップ 4 — 自走を確認する
 
-オーケストレーター AI に「`docs/ORCHESTRATION_RUNBOOK.md` の起動シーケンスを実行し、決定木で現在地を判定して次の一手を述べよ」と指示する。**人間が次の手を指示しなくても、決定木から次アクションが導出されれば成功。**
+オーケストレーター AI に「`docs/conclave/runbook/ORCHESTRATION_RUNBOOK.md` の起動シーケンスを実行し、決定木で現在地を判定して次の一手を述べよ」と指示する。**人間が次の手を指示しなくても、決定木から次アクションが導出されれば成功。**
 
 健全性チェック:
 - [ ] AI がコールドスタートで読むべきファイルを正しい順で読んだか

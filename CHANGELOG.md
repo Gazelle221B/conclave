@@ -4,6 +4,31 @@ Conclave フレームワークの改訂履歴。形式は [Keep a Changelog](htt
 
 ---
 
+## [0.3.0] — 2026-06-14 — CLI 配布物化
+
+Conclave を読むだけのドキュメント集合から、導入・検査できる最小プロダクトへ切り出した。
+
+### Added
+
+- **`package.json`**: npm パッケージメタデータ、`conclave` bin、`npm test`、`npm run pack:check`、`npm run check` を追加。
+- **`bin/conclave.js`**: ゼロ依存 CLI。`conclave init <project>` で governance kit を配置し、`conclave check <project>` で導入状態を検査する。
+- **`test/conclave-cli.test.js`**: Node 組み込み test runner による初期化、衝突防止、dry-run、check、help の回帰テスト。
+
+### Changed
+
+- **README / ADOPTION**: 手動コピーを主経路にせず、CLI 導入と tarball 配布を正面の利用手順にした。
+- Conclave 本体ドキュメントは `docs/conclave/` に source layout のまま配置し、相対リンクを壊さない導入形にした。
+- 配布対象の役割プロンプトを `architect.md` / `implement.md` / `review.md` / `qa.md` に明示し、未追跡のローカル実験ファイルが tarball に混ざらないようにした。
+
+### Tested
+
+- `npm test`
+- `npm run pack:check`
+- `node bin/conclave.js --help`
+- tarball install smoke test (`conclave version/init/check`)
+
+---
+
 ## [0.2.0] — 2026-06-13 — 研究駆動のハードニング
 
 7 つの外部資料を研究し(各々を独立エージェントで深読み → 敵対的検証)、**検証済み**の知見のみを統合した。研究は読み取り専用・独立タスクとして並列ファンアウトし、実装は全体整合のため単一スレッドで行った——これ自体が後述の知見(acting は単一スレッド、research は並列可)のドッグフーディング。
