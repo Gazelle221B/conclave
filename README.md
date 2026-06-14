@@ -149,10 +149,11 @@ conclave/
 │   ├── PROJECT_STATE.template.md   # ★ 真の記憶 (全エージェント随時更新)
 │   └── HANDOFF.template.md         # 時点スナップショット (交代時の 5 分把握)
 ├── prompts/                   # 各役割スロット宛の汎用 system プロンプト
-│   ├── architect.md  implement.md  review.md  qa.md
+│   └── architect.md  implement.md  review.md  qa.md
 ├── examples/
 │   └── panda-tech-news.md     # 抽出元の具体マッピング (抽象 ↔ 実体の対応表)
 └── references/                # 外部リファレンス標本 (init では撒かない study material)
+    ├── README.md                        # references/ の位置づけと索引
     ├── claude-fable-5-system-prompt.md  # 本番システムプロンプトの一次資料 (ベンダー標本)
     └── system-prompt-as-governance.md   # ↑を 6 本柱へ対応づけた読み解き
 ```
