@@ -7,6 +7,9 @@
 .sisyphus/
 .claude/
 
+# npm 配布成果物 (必要時に npm pack で再生成)
+*.tgz
+
 # エディタ
 .vscode/
 .idea/

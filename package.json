@@ -1,0 +1,35 @@
+{
+  "name": "conclave-governance-kit",
+  "version": "0.3.0",
+  "description": "Git-native governance kit for AI coding agents, with a zero-dependency project initializer.",
+  "license": "UNLICENSED",
+  "type": "commonjs",
+  "bin": {
+    "conclave": "./bin/conclave.js"
+  },
+  "files": [
+    "ADOPTION.md",
+    "CHANGELOG.md",
+    "FRAMEWORK.md",
+    "README.md",
+    "bin/",
+    "examples/",
+    "governance/",
+    "principles/",
+    "prompts/architect.md",
+    "prompts/implement.md",
+    "prompts/qa.md",
+    "prompts/review.md",
+    "roles/",
+    "runbook/",
+    "templates/"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "pack:check": "npm pack --dry-run",
+    "check": "npm test && npm run pack:check"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
