@@ -60,7 +60,9 @@ test("init installs the Conclave governance kit into a project", () => {
   assert.equal(fs.existsSync(path.join(target, "docs/conclave/principles/EXECUTION_DISCIPLINE.md")), true);
   assert.equal(fs.existsSync(path.join(target, "docs/conclave/prompts/review.md")), true);
   assert.equal(fs.existsSync(path.join(target, "prompts/architect.md")), true);
-  assert.equal(fs.existsSync(path.join(target, "prompts/CLAUDE-FABLE-5.md")), false);
+  // references/ holds study material (e.g. the Claude Fable 5 system-prompt exhibit)
+  // and must never be installed into a target project by `conclave init`.
+  assert.equal(fs.existsSync(path.join(target, "references")), false);
 });
 
 test("check reports a valid initialized project", () => {
