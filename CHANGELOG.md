@@ -4,6 +4,29 @@ Conclave フレームワークの改訂履歴。形式は [Keep a Changelog](htt
 
 ---
 
+## [0.3.1] — 2026-06-14 — Fable 5 リファレンス標本の取り込み
+
+本番 AI エージェントの統治文書の一次資料(Claude Fable 5 システムプロンプト)を、学習用リファレンス標本として `references/` に取り込んだ。raw を verbatim ダンプするのでなく、**出典付き標本 + Conclave 視点の読み解き**として整理(distillation 規律の実践)。
+
+### Added
+
+- **`references/claude-fable-5-system-prompt.md`**: Claude Fable 5 のシステムプロンプト(原文標本、出典/取り扱いヘッダ付き)。ベンダーのコンテンツであり Conclave 自身の成果物ではない。
+- **`references/system-prompt-as-governance.md`**: ↑を Conclave の目で読み解き、各統治技法を 6 本柱へ対応づけた解説(節構成・優先順位つき不可侵則・検証規律・注入耐性の実例)。
+- **`references/README.md`**: `references/` の位置づけ(外部標本、`init` では撒かない study material)。
+
+### Changed
+
+- `principles/CONTEXT_HYGIENE.md` CH-7(右の高度)から、実例として references/ を参照。
+- `package.json`: `files` に `references/` を追加(npm キットに同梱)。version 0.3.0 → 0.3.1。
+- `test/conclave-cli.test.js`: 「実験的プロンプトは init されない」回帰アサートを、`references/`(study material)が init されないことの確認に更新。
+
+### Notes
+
+- `references/` は `conclave init` の対象外(統治キットの構成要素ではない)。`INSTALL_DIRECTORIES` は governance/principles/roles のみで不変。
+- 標本は原文のまま収録。解説側は逐語引用を最小化した。
+
+---
+
 ## [0.3.0] — 2026-06-14 — CLI 配布物化
 
 Conclave を読むだけのドキュメント集合から、導入・検査できる最小プロダクトへ切り出した。
