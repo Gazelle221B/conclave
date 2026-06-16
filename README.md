@@ -84,7 +84,7 @@ Conclave は **ゼロ依存の npm CLI パッケージ**として配布できる
 npm pack
 
 # 生成された tarball をインストールして使う
-npm install -g ./conclave-governance-kit-0.3.0.tgz
+npm install -g ./conclave-governance-kit-0.3.2.tgz
 conclave init <your-project>
 conclave check <your-project>
 ```
@@ -95,6 +95,18 @@ conclave check <your-project>
 npx conclave-governance-kit init <your-project>
 npx conclave-governance-kit check <your-project>
 ```
+
+### 任意: peer messaging with agmsg
+
+複数の CLI エージェントを同時に動かすプロジェクトでは、[fujibee/agmsg](https://github.com/fujibee/agmsg) をローカル peer messaging transport として併用できる。Conclave は統治・記録・品質ゲートを担い、agmsg は live agent 間のメッセージ配送だけを担う。
+
+```bash
+npx agmsg
+# or
+npm i -g agmsg && agmsg install
+```
+
+`agmsg` メッセージは SSOT ではない。合意した判断・ブロッカー・レビュー/QA 結果は Conclave の `PROJECT_STATE` / `HANDOFF` / report に記録する。
 
 ---
 
@@ -155,7 +167,8 @@ conclave/
 └── references/                # 外部リファレンス標本 (init では撒かない study material)
     ├── README.md                        # references/ の位置づけと索引
     ├── claude-fable-5-system-prompt.md  # 本番システムプロンプトの一次資料 (ベンダー標本)
-    └── system-prompt-as-governance.md   # ↑を 6 本柱へ対応づけた読み解き
+    ├── system-prompt-as-governance.md   # ↑を 6 本柱へ対応づけた読み解き
+    └── agmsg-peer-messaging.md          # agmsg を peer messaging transport として使う境界
 ```
 
 ---
