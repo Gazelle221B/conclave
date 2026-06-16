@@ -4,6 +4,31 @@ Conclave フレームワークの改訂履歴。形式は [Keep a Changelog](htt
 
 ---
 
+## [0.3.2] — 2026-06-16 — agmsg peer messaging guidance
+
+[fujibee/agmsg](https://github.com/fujibee/agmsg) を Conclave の任意 peer messaging transport として取り込んだ。agmsg 自体は vendoring せず、Conclave の統治・記録・品質ゲートを保ったまま、複数 live CLI エージェント間の copy-paste 仲介を減らす導線として位置づけた。
+
+### Added
+
+- **`references/agmsg-peer-messaging.md`**: agmsg の役割、導入判断、Conclave との境界、ガードレールを整理。
+- **`templates/AGENTS.template.md`**: 任意 peer messaging 欄を追加。`agmsg` メッセージは SSOT ではなく、判断・ブロッカー・レビュー/QA 結果は repo 内記録へ転記する規律を明記。
+- **`runbook/ORCHESTRATION_RUNBOOK.template.md`**: 外部 AI ルーティングに `agmsg` の利用判断・導入例・失敗時扱いを追加。
+
+### Changed
+
+- **`ADOPTION.md` / `README.md`**: 複数 live agent のときだけ agmsg を併用する任意手順を追加。
+- **`roles/ROLE_TOPOLOGY.md`**: peer transport は権限を持たず、レビュー独立性・QA・PROJECT_STATE の代替にならないことを委任の鉄則へ追加。
+- **`package.json`**: version 0.3.1 → 0.3.2。
+
+### Tested
+
+- `npm run check`
+- `node --check bin/conclave.js`
+- `node --check test/conclave-cli.test.js`
+- `git diff --check`
+
+---
+
 ## [0.3.1] — 2026-06-14 — Fable 5 リファレンス標本の取り込み
 
 本番 AI エージェントの統治文書の一次資料(Claude Fable 5 システムプロンプト)を、学習用リファレンス標本として `references/` に取り込んだ。raw を verbatim ダンプするのでなく、**出典付き標本 + Conclave 視点の読み解き**として整理(distillation 規律の実践)。

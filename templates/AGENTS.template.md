@@ -73,6 +73,7 @@
 
 **永続化 > 内部記憶**: 状態は必ず `docs/PROJECT_STATE.md` に書く。
 **エスカレーション分類** A-E: → [ESCALATION](docs/conclave/governance/ESCALATION.md)。
+**Peer messaging (任意)**: 複数 CLI エージェントを同時運用する場合のみ `agmsg` 等のローカル peer transport を使ってよい。ただし `agmsg` メッセージは SSOT ではない。採用した判断・ブロッカー・レビュー/QA 結果は必ず `docs/PROJECT_STATE.md` / `docs/HANDOFF.md` / 各 report へ記録し、秘密値を送らない。
 
 ## 8. コミット規約とブランチ運用
 
@@ -97,6 +98,7 @@
 | 組織契約 | docs/conclave/roles/ROLE_TOPOLOGY.md | 役割スロット・委任の鉄則 (誰が何の役割か) |
 | 憲法 | docs/conclave/governance/CONSTITUTION.md / docs/conclave/governance/ESCALATION.md | 絶対 NG (C-1〜C-8) + 失敗分類 A-E |
 | 原則 | docs/conclave/principles/EXECUTION_DISCIPLINE.md ほか | 実行規律 / 工学不変条件 / 文脈衛生 / 失敗分類 / 判定信頼性 |
+| 任意 peer 通信 | agmsg (`npx agmsg` 等) | 同時稼働中の CLI エージェント間メッセージ。SSOT ではなく transport |
 | ADR | docs/adr/INDEX.md | 設計判断記録 |
 | 証跡 | docs/TEST_LOG.md / REVIEW_REPORT.md / QA_REPORT.md | 実装/レビュー/QA |
 

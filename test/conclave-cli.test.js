@@ -117,6 +117,21 @@ test("installed markdown files keep relative links resolvable", () => {
   assert.deepEqual(missingLinks, []);
 });
 
+test("init installs optional agmsg peer messaging guardrails", () => {
+  const target = makeTempProject();
+  cli.main(["init", target]);
+
+  const agents = fs.readFileSync(path.join(target, "AGENTS.md"), "utf8");
+  const runbook = fs.readFileSync(path.join(target, "docs/conclave/runbook/ORCHESTRATION_RUNBOOK.md"), "utf8");
+
+  assert.match(agents, /Peer messaging/);
+  assert.match(agents, /agmsg/);
+  assert.match(agents, /SSOT ではない/);
+  assert.match(runbook, /Peer messaging transport/);
+  assert.match(runbook, /npx agmsg/);
+  assert.match(runbook, /PROJECT_STATE/);
+});
+
 test("init refuses to overwrite managed files without --force", () => {
   const target = makeTempProject();
   cli.main(["init", target]);

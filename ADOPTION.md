@@ -28,7 +28,7 @@ PROJ=<your-project-path>
 
 # この Conclave リポジトリから tarball を作る場合
 npm pack
-npm install -g ./conclave-governance-kit-0.3.0.tgz
+npm install -g ./conclave-governance-kit-0.3.2.tgz
 
 # 対象プロジェクトへ統治ファイルを配置
 conclave init "$PROJ"
@@ -108,6 +108,19 @@ cp conclave/principles/*.md "$PROJ/docs/conclave/principles/"
 6. [QA_MEMORY] QA_REPORT + PROJECT_STATE 更新            ← prompts/qa.md
 7. [人間] merge 承認
 ```
+
+### 任意 — agmsg で live agent 間の copy-paste を減らす
+
+複数の CLI エージェント(Claude Code / Codex / Gemini CLI / Copilot CLI / Antigravity など)を**同時に**動かすなら、[fujibee/agmsg](https://github.com/fujibee/agmsg) を peer messaging transport として導入できる。Conclave の必須依存ではない。
+
+```bash
+# 事前条件: bash + sqlite3
+npx agmsg
+# or
+npm i -g agmsg && agmsg install
+```
+
+導入した場合も、`agmsg` は SSOT ではない。採用した判断・ブロッカー・レビュー/QA 結果は必ず `docs/PROJECT_STATE.md` / `docs/HANDOFF.md` / 各 report に転記する。秘密値は送らない。
 
 ---
 

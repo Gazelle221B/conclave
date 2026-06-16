@@ -70,6 +70,28 @@
 | 調査・セカンドオピニオン | (検索グラウンディング) | `<search-cli> -p "<prompt>"` | 一次情報 URL は**必ず自分で実在検証** |
 | Git/PR ワークフローのみ | (Git 専用) | `gh pr create` / `gh pr view` | **コーディングには使わない** (リクエスト上限) |
 
+### Peer messaging transport (任意: agmsg)
+
+複数の CLI エージェントが**同時に**動くプロジェクトでは、`agmsg` をローカル peer messaging transport として使ってよい。`agmsg` は `bash` + `sqlite3` のローカル SQLite 経由で Claude Code / Codex / Gemini CLI / Copilot CLI / Antigravity などの peer session をつなぐ。Conclave の役割は変えない。
+
+利用判断:
+- 使う: 複数の live agent がいて、人間の copy-paste 仲介を減らしたい。
+- 使わない: 単独セッション、単発作業、永続記録だけで十分な作業。
+
+導入例(人間またはプロジェクト owner が明示的に選ぶ):
+```bash
+npx agmsg
+# or
+npm i -g agmsg && agmsg install
+```
+
+ガードレール:
+- `agmsg` は transport。**PROJECT_STATE / HANDOFF / REVIEW_REPORT / QA_REPORT / GitHub PR を置き換えない**。
+- `agmsg` で合意した判断・ブロッカー・検証結果は、採用前に必ず repo 内の該当 SSOT へ転記する。
+- 実装者からレビュアーへの直接メッセージは許可されるが、レビュー独立性と fresh verification は緩めない。
+- 秘密値・認証トークン・顧客データを送らない。
+- `agmsg` が壊れた場合は環境失敗として扱い、2 回連続失敗で区分 D エスカレーションする。Conclave の本線は止めない。
+
 委任の型 (推奨):
 ```bash
 # 実装委任 — バックグラウンド実行して結果を回収
