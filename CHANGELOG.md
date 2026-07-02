@@ -4,6 +4,59 @@ Conclave フレームワークの改訂履歴。形式は [Keep a Changelog](htt
 
 ---
 
+## [0.4.0] — 2026-07-02 — Honest install, verifiable check
+
+`init` を「嘘をつかない」二相構造 (plan → execute) に、`check` を「存在確認」から「実質検証」に強化した。独立エージェント群によるマルチ視点分析 (バグ / テスト / ドキュメント / 機能提案×2 の 5 並列探索 → 敵対的検証) で 6 欠陥を再現付きで confirm し、その全修正 + 一貫した機能群を 1 リリースに束ねた。実装後、**作者とは別の独立レビュー Workflow** (P1 のドッグフーディング: 正しさ/セキュリティ + 互換性/ドキュメントの 2 レンズ → 全指摘を敵対的検証) が 8 件を confirm し、全件を本リリース内で修正した (下記「Reviewed」)。
+
+### Added
+
+- **Install manifest (`.conclave/manifest.json`)**: `init` が kit バージョン・導入日時・全 27 ファイルの SHA-256 (リンク書き換え後の内容に対して計算)・CLAUDE.md エイリアス方式を記録。Git にコミットすればドリフトが diff でも追える。将来の `conclave update` の enabler。
+- **`check` の実質検証**: 0 バイトの governance doc は FAIL / manifest 記録に基づく CLAUDE.md エイリアス検証 (消失は FAIL) / kit 管理ファイル (governance・principles・prompts・runbook テンプレ) のローカル改変を警告 / 導入 kit が CLI より古い場合の staleness 警告 / プレースホルダ残数を AGENTS.md + 7 ドキュメント別に報告。manifest がない旧導入・手動導入では従来挙動に degrade (警告のみ)。
+- **`--json`**: `check` と `init --dry-run` の機械可読出力。README に GitHub Actions の required check 化レシピを追加 (P2 人間専権ゲートの機械化)。
+- **`--version` / `-V`** エイリアス。コマンド別の不正オプション拒否 (`check --force` 等)。`docs/adr/.gitkeep` を init が作成 (Pillar 3 の `adr/` 前提と CLI の整合)。
+
+### Fixed
+
+- **dry-run の嘘 / partial install (確認済み欠陥 D1・D2)**: `init` を plan → execute の二相に再構成。ディレクトリ衝突・symlink 親・CLAUDE.md エイリアス先・manifest 先の全実現可能性チェックを**書き込み前に**完了させるため、dry-run と実 run の判定が定義上一致し、途中失敗による半端なインストール残留が起きない。
+- **`countPlaceholders` の誤検知 (D3)**: HTML コメント・autolink (`<https://...>`)・メールアドレス・HTML タグ、および `agent/<task-id>-impl` や `<type>: <description>` のような**大きなインラインコード式に埋め込まれた**恒久ドキュメント記法を除外。単一トークンのコードスパン (`<プロジェクト名>` 等) は引き続きプレースホルダとして数える。完成済み AGENTS.md で警告が 0 に到達可能になった。
+- **check の盲点 (D4)**: 空ファイル・エイリアス消失・kit ドリフトを検出 (上記 Added)。symlink された AGENTS.md を誤って「missing」と報告しない (stat follow)。
+- **TOCTOU 緩和 (D5)**: 書き込みを temp ファイル + rename に変更 (rename は宛先 symlink を辿らず置換する)。書き込み直前に親ディレクトリの realpath が target 内であることを再検証。完全なレース排除ではない旨をコード内に明記。
+- **リンク書き換え漏れ (L5)**: 導入された PROJECT_STATE / HANDOFF のリンクが runbook の**作業コピー** (`ORCHESTRATION_RUNBOOK.md`) を指すように修正 (従来は未編集のテンプレコピーを指していた)。ADOPTION の手動コピー用 perl 書き換えも同期。
+- 衝突エラーの改善 (D6): CLAUDE.md 衝突時は破壊的な `--force` へ誘導せず `--no-claude-alias` を案内し、`--dry-run --force` でのプレビューを促す。ファイルを target に指定した `init` は書き込み前に「not a directory」で停止。
+
+### Changed
+
+- **README / ADOPTION**: CLI フラグ一式 (`--dry-run` / `--force` / `--no-claude-alias` / `--json`)・manifest・CI レシピを文書化 (従来は usage にのみ存在)。tarball バージョンのハードコード (`0.3.2.tgz`) を `npm install -g "$(npm pack)"` に置換し、リリース毎のドキュメント腐敗を解消。
+- **テスト**: 16 → 53。プロセス境界の smoke テスト (exit code / stderr)、plan/execute の同値性 (祖先ファイル遮断含む)、placeholder 判定、manifest (staleness / copy-mode エイリアス含む)、check の各検出器、本物の 0.3.x レイアウトの graceful degradation、`--json` 契約を追加。
+
+### Reviewed (独立レビュー — 8 件 confirm → 全修正)
+
+- **祖先パス未検査 (High)**: `prompts` や `.conclave` という名の**通常ファイル**が居ると dry-run は成功・実 run は途中失敗し partial install が残った。plan フェーズで全祖先コンポーネントの非ディレクトリを検出して書き込み前に停止 (`Refusing to replace non-directory path component`)。
+- **後方互換破壊 (High)**: `docs/adr/.gitkeep` の必須化により 0.3.x 導入済み・手動導入プロジェクトの `check` が hard-FAIL していた。optional 扱いに変更し警告のみに (「警告のみに degrade」の主張を実際に満たす)。「graceful degradation」テストも本物の 0.3.x レイアウト (manifest なし + .gitkeep なし) をモデルするよう修正。
+- **データ喪失への誘導 (High)**: check の警告文が無警告で `init --force` を勧めていたが、それは記入済みドキュメントをテンプレートへ戻す。警告文と ADOPTION に「git コミット必須 + 復元手順」の注意を明記。text の `--dry-run --force` も上書き対象ファイル一覧を表示するように。
+- **HTML タグ判定の過剰除外 (Medium)**: `<a short description>` 等、HTML タグ名で始まる英語プレースホルダを無視していた。属性形 (`=` を含む) のときのみ HTML タグと判定するよう修正。
+- **CI レシピの npx 未固定 (Medium)**: 新リリースの要求ファイル追加で採用者の required check が突然赤になる。README のレシピをバージョン固定に変更し、FAIL 条件 (プレースホルダは警告であり FAIL しない) を明記。
+- **ADOPTION 手動経路の虚偽記述 (Medium)**: 手動コピー手順が `.gitkeep` を作らず check が落ちていた。`touch` を手順に追加 (+ optional 化で二重に解消)。
+- **manifest 書き込み失敗後の偽 PASS (Medium)**: 決定的ケース (`.conclave` がファイル) は祖先チェックで plan 時に停止。権限起因 (read-only dir) は plan 時に排除不能な残余リスクとしてコードコメントに明記。
+- **`init --dry-run --json` の契約破れ (Low)**: conflicts 以外の plan 失敗 (ディレクトリ衝突等) で JSON が出なかった。全 plan 失敗で `{ok:false, error, conflicts}` を返すように。manifest のキーを全プラットフォームで forward-slash に正規化 (Windows 互換)。
+
+### Rejected / Deferred — verify before adopt の実演
+
+- **`conclave update`**: 最有力の次機能だが、manifest が現場に行き渡ってから。v0.5 へ (manifest は本リリースで先行導入)。
+- **`check --strict` (REVIEW/QA 証跡ゲート検証・JR-1 判定者独立性リント・C-7 終了条件リント)・`conclave gate`**: doctrine ドキュメントの文言に CLI を結合させるため、独立した governance-enforcement リリースとして v0.5 で検討。
+- **`--` 引数セパレータ・`conclave doctor`・`init --git-hooks`**: 効果対複雑性で見送り。
+
+### Provenance
+
+分析 Workflow: 12 エージェント (5 視点並列探索 + 6 敵対的検証 + 1 統合)、約 85 万トークン。独立レビュー Workflow: 11 エージェント (2 レンズ + 9 敵対的検証)、約 93 万トークン、反証 0 件。全 confirmed 欠陥・指摘は scratch 環境での再現手順付き。
+
+### Tested
+
+- `npm run check` (node --test 53 件 + `npm pack --dry-run`)
+- scratch dir での手動マトリクス: fresh init / re-init 拒否 / ディレクトリ衝突 dry-run=実 run 同値 / 祖先ファイル遮断 / `--no-claude-alias` / `check --json` / `--version`
+
+---
+
 ## [0.3.2] — 2026-06-16 — agmsg peer messaging guidance
 
 [fujibee/agmsg](https://github.com/fujibee/agmsg) を Conclave の任意 peer messaging transport として取り込んだ。agmsg 自体は vendoring せず、Conclave の統治・記録・品質ゲートを保ったまま、複数 live CLI エージェント間の copy-paste 仲介を減らす導線として位置づけた。
