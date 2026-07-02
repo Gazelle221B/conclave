@@ -26,14 +26,28 @@
 ```bash
 PROJ=<your-project-path>
 
-# この Conclave リポジトリから tarball を作る場合
-npm pack
-npm install -g ./conclave-governance-kit-0.3.2.tgz
+# この Conclave リポジトリから tarball を作ってインストール (バージョンに依存しない書き方)
+npm install -g "$(npm pack)"
 
-# 対象プロジェクトへ統治ファイルを配置
+# 対象プロジェクトへ統治ファイルを配置 (.conclave/manifest.json も記録される)
 conclave init "$PROJ"
 conclave check "$PROJ"
 ```
+
+既存プロジェクトへの導入で衝突する場合:
+
+```bash
+# 自前の CLAUDE.md を持っているなら、エイリアス作成だけスキップして残す
+conclave init "$PROJ" --no-claude-alias
+
+# Conclave 管理ファイルの上書き再配置は、まず --dry-run --force でプレビューしてから
+conclave init "$PROJ" --dry-run --force
+conclave init "$PROJ" --force
+```
+
+> ⚠️ `--force` は kit ファイルだけでなく、**記入済みの AGENTS.md / docs/\*.md もテンプレートへ戻す**。必ず git にコミットしてから実行し、記入済みドキュメントは実行後に git から復元する (`git checkout -- AGENTS.md docs/` など)。内容を保全する `conclave update` は v0.5 で予定。
+
+`--dry-run` は実 run と同じ実現可能性チェックを通すため、プレビューが成功すれば実 run も成功する。`.conclave/manifest.json` は Git にコミットしておくと、以後の `conclave check` が governance ドキュメントのドリフト (意図しないローカル改変)・空ファイル化・CLAUDE.md エイリアス消失を検出する。
 
 公開済みパッケージとして使う場合:
 
@@ -53,6 +67,7 @@ cd "$PROJ" && ln -s AGENTS.md CLAUDE.md     # Claude Code 用エイリアス
 
 # 運用ドキュメント
 mkdir -p "$PROJ/docs/adr" "$PROJ/docs/conclave/runbook"
+touch "$PROJ/docs/adr/.gitkeep"
 cp conclave/runbook/ORCHESTRATION_RUNBOOK.template.md "$PROJ/docs/conclave/runbook/ORCHESTRATION_RUNBOOK.template.md"
 cp conclave/runbook/ORCHESTRATION_RUNBOOK.template.md "$PROJ/docs/conclave/runbook/ORCHESTRATION_RUNBOOK.md"
 cp conclave/templates/DESIGN.template.md "$PROJ/docs/DESIGN.md"
@@ -62,7 +77,7 @@ cp conclave/templates/HANDOFF.template.md "$PROJ/docs/HANDOFF.md"
 cp conclave/templates/REQUIREMENTS.template.md "$PROJ/docs/REQUIREMENTS.md"
 cp conclave/templates/REVIEW_REPORT.template.md "$PROJ/docs/REVIEW_REPORT.md"
 cp conclave/templates/QA_REPORT.template.md "$PROJ/docs/QA_REPORT.md"
-perl -0pi -e 's#\.\./(governance|principles|roles|runbook|prompts)/#conclave/$1/#g; s#\b(REQUIREMENTS|DESIGN|IMPLEMENTATION_PLAN|PROJECT_STATE|HANDOFF|REVIEW_REPORT|QA_REPORT)\.template\.md#$1.md#g' "$PROJ"/docs/*.md
+perl -0pi -e 's#\.\./(governance|principles|roles|runbook|prompts)/#conclave/$1/#g; s#\b(REQUIREMENTS|DESIGN|IMPLEMENTATION_PLAN|PROJECT_STATE|HANDOFF|REVIEW_REPORT|QA_REPORT|ORCHESTRATION_RUNBOOK)\.template\.md#$1.md#g' "$PROJ"/docs/*.md
 
 # 役割プロンプト
 mkdir -p "$PROJ/prompts" "$PROJ/docs/conclave/prompts"
@@ -75,6 +90,8 @@ cp conclave/governance/*.md "$PROJ/docs/conclave/governance/"
 cp conclave/roles/*.md "$PROJ/docs/conclave/roles/"
 cp conclave/principles/*.md "$PROJ/docs/conclave/principles/"
 ```
+
+> 手動コピーでは `.conclave/manifest.json` が作られないため、`conclave check` は manifest 未検出の警告を出す (検査自体は通る)。ドリフト検出まで有効にするには CLI 導入 (`conclave init`) を使う。
 
 ---
 
